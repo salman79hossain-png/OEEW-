@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Product Manager</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Login to Product Manager</h1>
+        <p>এই ওয়েবসাইটটি ব্যক্তিগত। শুধুমাত্র যাচাইকৃত ব্যবহারকারীরা অ্যাক্সেস করতে পারবেন।</p> <!-- Mixed English/Bangla: This website is private. Only verified users can access. -->
+        
+        <!-- Email Input -->
+        <label for="email">Email Address (ইমেইল ঠিকানা):</label>
+        <input type="email" id="email" placeholder="Enter your email" required>
+        
+        <!-- Send Verification Code Button -->
+        <button id="sendCodeBtn">Send Verification Code (যাচাইকরণ কোড পাঠান)</button>
+        
+        <!-- Verification Code Input (Hidden initially) -->
+        <div id="codeSection" style="display: none;">
+            <label for="verificationCode">Verification Code (যাচাইকরণ কোড):</label>
+            <input type="text" id="verificationCode" placeholder="Enter code" required>
+        </div>
+        
+        <!-- Password Input (Hidden initially) -->
+        <div id="passwordSection" style="display: none;">
+            <label for="password">Password (পাসওয়ার্ড):</label>
+            <input type="password" id="password" placeholder="Enter password" required>
+            <button id="loginBtn">Login (লগইন)</button>
+        </div>
+        
+        <p id="message"></p>
+    </div>
+    
+    <script src="script.js"></script>
+    <script>
+        // Login page specific JS
+        const emailInput = document.getElementById('email');
+        const sendCodeBtn = document.getElementById('sendCodeBtn');
+        const codeSection = document.getElementById('codeSection');
+        const verificationCodeInput = document.getElementById('verificationCode');
+        const passwordSection = document.getElementById('passwordSection');
+        const passwordInput = document.getElementById('password');
+        const loginBtn = document.getElementById('loginBtn');
+        const message = document.getElementById('message');
+        
+        // Step 1: Send verification code (simulated)
+        sendCodeBtn.addEventListener('click', () => {
+            const email = emailInput.value.trim();
+            if (!email) {
+                message.textContent = 'Please enter a valid email. (একটি বৈধ ইমেইল লিখুন।)';
+                return;
+            }
+            // Simulate sending code (hardcoded for demo)
+            alert('Verification code sent to ' + email + '. (যাচাইকরণ কোড পাঠানো হয়েছে।) Code: 123456'); // In real app, send via backend
+            codeSection.style.display = 'block';
+            message.textContent = '';
+        });
+        
+        // Step 2: Verify code
+        verificationCodeInput.addEventListener('input', () => {
+            if (verificationCodeInput.value === '123456') { // Hardcoded for demo
+                passwordSection.style.display = 'block';
+                message.textContent = 'Code verified. Enter password. (কোড যাচাই হয়েছে। পাসওয়ার্ড লিখুন।)';
+            } else {
+                passwordSection.style.display = 'none';
+            }
+        });
+        
+        // Step 3: Login with password
+        loginBtn.addEventListener('click', () => {
+            const password = passwordInput.value;
+            if (password === 'We@re-UdogtA') {
+                localStorage.setItem('isLoggedIn', 'true'); // Mark as logged in
+                window.location.href = 'dashboard.html'; // Redirect to dashboard
+            } else {
+                message.textContent = 'Incorrect password. (ভুল পাসওয়ার্ড।)';
+            }
+        });
+        
+        // Check if already logged in
+        if (localStorage.getItem('isLoggedIn') === 'true') {
+            window.location.href = 'dashboard.html';
+        }
+    </script>
+</body>
+</html>
+```
+
+### 2. dashboard.html (Dashboard)
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Product Manager</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Dashboard (ড্যাশবোর্ড)</h1>
+        <nav>
+            <a href="upload.html">Upload Product (পণ্য আপলোড)</a> |
+            <a href="profit.html">Profit/Loss (লাভ/ক্ষতি)</a> |
+            <button id="logoutBtn">Logout (লগআউট)</button>
+        </nav>
+        
+        <h2>Saved Products (সংরক্ষিত পণ্য)</h2>
+        <div id="productList"></div>
+    </div>
+    
+    <script src="script.js"></script>
+    <script>
+        // Dashboard specific JS
+        const productList = document.getElementById('productList');
+        const logoutBtn = document.getElementById('logoutBtn');
+        
+        // Load and display products
+        function loadProducts() {
+            const products = getProducts();
+            productList.innerHTML = '';
+            products.forEach(product => {
+                const div = document.createElement('div');
+                div.className = 'product-item';
+                div.innerHTML = `
+                    <img src="${product.image}" alt="${product.name}" style="width: 100px; height: 100px;">
+                    <p><strong>Name (নাম):</strong> ${product.name}</p>
+                    <p><strong>Code (কোড):</strong> ${product.code}</p>
+                    <p><strong>Purchase Price (ক্রয় মূল্য):</strong> ${product.purchasePrice}</p>
+                    <p><strong>Selling Price (বিক্রয় মূল্য):</strong> ${product.sellingPrice}</p>
+                    <p><strong>Stock (স্টক):</strong> ${product.stock}</p>
+                    <p><strong>Description (বর্ণনা):</strong> ${product.description}</p>
+                    <button onclick="copyProduct('${product.code}')">Copy Details (বিস্তারিত কপি)</button>
+                `;
+                productList.appendChild(div);
+            });
+        }
+        
+        // Copy product details to clipboard
+        function copyProduct(code) {
+            const products = getProducts();
+            const product = products.find(p => p.code === code);
+            if (product) {
+                const details = `Name: ${product.name}\nCode: ${product.code}\nPurchase: ${product.purchasePrice}\nSelling: ${product.sellingPrice}\nStock: ${product.stock}\nDescription: ${product.description}`;
+                navigator.clipboard.writeText(details).then(() => alert('Copied! (কপি হয়েছে!)'));
+            }
+        }
+        
+        // Logout
+        logoutBtn.addEventListener('click', () => {
+            localStorage.removeItem('isLoggedIn');
+            window.location.href = 'index.html';
+        });
+        
+        // Check login
+        if (localStorage.getItem('isLoggedIn') !== 'true') {
+            window.location.href = 'index.html';
+        }
+        
+        loadProducts();
+    </script>
+</body>
+</html>
+```
+
+### 3. upload.html (Product Upload Page)
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Product - Product Manager</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Upload Product (পণ্য আপলোড)</h1>
+        <nav>
+            <a href="dashboard.html">Dashboard (ড্যাশবোর্ড)</a> |
+            <a href="profit.html">Profit/Loss (লাভ/ক্ষতি)</a> |
+            <button id="logoutBtn">Logout (লগআউট)</button>
+        </nav>
+        
+        <form id="productForm">
+            <label for="image">Product Image (পণ্যের ছবি):</label>
+            <input type="file" id="image" accept="image/*" required>
+            
+            <label for="name">Product Name (পণ্যের নাম):</label>
+            <input type="text" id="name" required>
+            
+            <label for="code">Unique Product Code (অনন্য পণ্য কোড):</label>
+            <input type="text" id="code" required>
+            
+            <label for="purchasePrice">Purchase Price (ক্রয় মূল্য):</label>
+            <input type="number" id="purchasePrice" step="0.01" required>
+            
+            <label for="sellingPrice">Selling Price (বিক্রয় মূল্য):</label>
+            <input type="number" id="sellingPrice" step="0.01" required>
+            
+            <label for="stock">Stock Quantity (স্টক পরিমাণ):</label>
+            <input type="number" id="stock" required>
+            
+            <label for="description">Description (বর্ণনা):</label>
+            <textarea id="description" required></textarea>
+            
+            <button type="submit">Save Product (পণ্য সংরক্ষণ)</button>
+        </form>
+        
+        <p id="message"></p>
+    </div>
+    
+    <script src="script.js"></script>
+    <script>
+        // Upload page specific JS
+        const form = document.getElementById('productForm');
+        const message = document.getElementById('message');
+        const logoutBtn = document.getElementById('logoutBtn');
+        
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const imageInput = document.getElementById('image');
+            const name = document.getElementById('name').value.trim();
+            const code = document.getElementById('code').value.trim();
+            const purchasePrice = parseFloat(document.getElementById('purchasePrice').value);
+            const sellingPrice = parseFloat(document.getElementById('sellingPrice').value);
+            const stock = parseInt(document.getElementById('stock').value);
+            const description = document.getElementById('description').value.trim();
+            
+            // Check uniqueness
+            const products = getProducts();
+            if (products.some(p => p.code === code)) {
+                message.textContent = 'Product code must be unique. (পণ্য কোড অবশ্যই অনন্য হতে হবে।)';
+                return;
+            }
+            
+            // Convert image to base64
+            const file = imageInput.files[0];
+            if (!file) {
+                message.textContent = 'Please select an image. (একটি ছবি নির্বাচন করুন।)';
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = () => {
+                const product = {
+                    image: reader.result,
+                    name,
+                    code,
+                    purchasePrice,
+                    sellingPrice,
+                    stock,
+                    description
+                };
+                products.push(product);
+                saveProducts(products);
+                message.textContent = 'Product saved! (পণ্য সংরক্ষিত!)';
+                form.reset();
+            };
+            reader.readAsDataURL(file);
+        });
+        
+        // Logout
+        logoutBtn.addEventListener('click', () => {
+            localStorage.removeItem('isLoggedIn');
+            window.location.href = 'index.html';
+        });
+        
+        // Check login
+        if (localStorage.getItem('isLoggedIn') !== 'true') {
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>
+```
+
+### 4. profit.html (Profit/Loss Page)
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profit/Loss - Product Manager</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Profit/Loss Calculation (লাভ/ক্ষতি গণনা)</h1>
+        <nav>
+            <a href="dashboard.html">Dashboard (ড্যাশবোর্ড)</a> |
+            <a href="upload.html">Upload Product (পণ্য আপলোড)</a> |
+            <button id="logoutBtn">Logout (লগআউট)</button>
+        </nav>
+        
+        <h2>Total Profit (মোট লাভ): <span id="totalProfit">0</span></h2>
+        <h2>Total Loss (মোট ক্ষতি): <span id="totalLoss">0</span></h2>
+        
+        <h2>Individual Product Profit/Loss (প্রতিটি পণ্যের লাভ/ক্ষতি)</h2>
+        <div id="profitList"></div>
+    </div>
+    
+    <script src="script.js"></script>
+    <script>
+        // Profit/Loss page specific JS
+        const totalProfitEl = document.getElementById('totalProfit');
+        const totalLossEl = document.getElementById('totalLoss');
+        const profitList = document.getElementById('profitList');
+        const logoutBtn = document.getElementById('logoutBtn');
+        
+        // Calculate and display
+        function calculateProfits() {
+            const products = getProducts();
+            let totalProfit = 0;
+            let totalLoss = 0;
+            profitList.innerHTML = '';
+            
+            products.forEach(product => {
+                const profit = (product.sellingPrice - product.purchasePrice) * product.stock;
+                const div = document.createElement('div');
+                div.className = 'profit-item';
+                div.innerHTML = `
+                    <p><strong>${product.name} (${product.code})</strong>: ${profit >= 0 ? 'Profit (লাভ)' : 'Loss (ক্ষতি)'} = ${Math.abs(profit)}</p>
+                `;
+                profitList.appendChild(div);
+                
+                if (profit > 0) totalProfit += profit;
+                else totalLoss += Math.abs(profit);
+            });
+            
+            totalProfitEl.textContent = totalProfit.toFixed(2);
+            totalLossEl.textContent = totalLoss.toFixed(2);
+        }
+        
+        // Logout
+        logoutBtn.addEventListener('click', () => {
+            localStorage.removeItem('isLoggedIn');
+            window.location.href = 'index.html';
+        });
+        
+        // Check login
+        if (localStorage.getItem('isLoggedIn') !== 'true') {
+            window.location.href = 'index.html';
+        }
+        
+        calculateProfits();
+    </script>
+</body>
+</html>
+```
+
+### 5. styles.css (Shared CSS)
+```css
+/* Global styles */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+.container {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+h1, h2 {
